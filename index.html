@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ハムスター家系図</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FAF3E8;
+    --cream-deep:#F1E6D3;
+    --ink:#3E2F24;
+    --ink-soft:#6B5A4C;
+    --line:#DCC9AE;
+    --normal:#C98A4B;
+    --normal-bg:#F6E5D1;
+    --sapphire:#6E8FAE;
+    --sapphire-bg:#E4EBF2;
+    --moon:#9683B0;
+    --moon-bg:#EAE3F1;
+    --mocha:#8B5E3C;
+    --mocha-bg:#EBDECE;
+    --gold:#D9A441;
+    --male:#7C9CB8;
+    --female:#D98499;
+    --card-w:168px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(217,164,65,0.10), transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(140,94,60,0.10), transparent 40%),
+      var(--cream);
+    color:var(--ink);
+    font-family:'Noto Sans JP', sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:28px 20px 60px;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+    border-bottom:2px solid var(--line);
+    padding-bottom:18px;
+    margin-bottom:22px;
+  }
+  .title-block .eyebrow{
+    font-size:12px;
+    letter-spacing:.14em;
+    color:var(--ink-soft);
+    font-weight:600;
+    display:flex;align-items:center;gap:6px;
+  }
+  .title-block h1{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-weight:900;
+    font-size:30px;
+    margin:2px 0 0;
+    letter-spacing:.02em;
+  }
+  .title-block h1 span{color:var(--mocha);}
+  .stats-strip{display:flex;gap:18px;flex-wrap:wrap;}
+  .stat{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:8px 16px;
+    text-align:center;
+    min-width:78px;
+  }
+  .stat b{display:block;font-family:'Zen Maru Gothic';font-size:20px;color:var(--mocha);}
+  .stat span{font-size:11px;color:var(--ink-soft);}
+
+  /* ---------- SEARCH ---------- */
+  .search-row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    position:relative;
+  }
+  .search-box{position:relative;flex:1;min-width:240px;max-width:420px;}
+  .search-box input{
+    width:100%;
+    padding:11px 16px 11px 40px;
+    border-radius:999px;
+    border:2px solid var(--line);
+    background:#fff;
+    font-family:'Noto Sans JP';
+    font-size:14px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  .search-box input:focus{border-color:var(--mocha);}
+  .search-box::before{
+    content:"🔍";
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    font-size:14px;opacity:.6;
+  }
+  .suggestions{
+    position:absolute;top:calc(100% + 6px);left:0;right:0;
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 12px 28px rgba(62,47,36,0.14);
+    max-height:280px;overflow-y:auto;z-index:50;
+  }
+  .suggestions button{
+    display:flex;align-items:center;gap:8px;
+    width:100%;text-align:left;padding:9px 14px;
+    background:none;border:none;border-bottom:1px solid var(--cream-deep);
+    font-family:'Noto Sans JP';font-size:13.5px;color:var(--ink);cursor:pointer;
+  }
+  .suggestions button:last-child{border-bottom:none;}
+  .suggestions button:hover{background:var(--cream-deep);}
+  .suggestions .g{font-size:11px;color:var(--ink-soft);margin-left:auto;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);align-items:center;}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+  /* ---------- BROWSE BY GENERATION ---------- */
+  .browse-row{margin-bottom:22px;}
+  .browse-label{font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:8px;letter-spacing:.04em;}
+  .gen-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .gen-btn{
+    padding:7px 16px;border-radius:999px;border:2px solid var(--line);background:#fff;
+    font-family:'Zen Maru Gothic';font-size:12.5px;font-weight:700;color:var(--ink-soft);cursor:pointer;
+    transition:all .12s;
+  }
+  .gen-btn:hover{border-color:var(--mocha);color:var(--mocha);}
+  .gen-btn.active{background:var(--mocha);border-color:var(--mocha);color:#fff;}
+  .name-buttons{
+    display:flex;gap:7px;flex-wrap:wrap;padding:14px;
+    background:var(--cream-deep);border-radius:14px;border:1px solid var(--line);
+  }
+  .name-btn{
+    padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:#fff;
+    font-family:'Noto Sans JP';font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;
+    display:flex;align-items:center;gap:6px;transition:border-color .12s;
+  }
+  .name-btn::before{content:'';width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .name-btn.male::before{background:var(--male);}
+  .name-btn.female::before{background:var(--female);}
+  .name-btn:hover{border-color:var(--mocha);}
+  .name-btn.active{border-color:var(--mocha);background:var(--normal-bg);}
+
+  /* ---------- TREE AREA ---------- */
+  .tree-shell{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:26px 22px 30px;
+    overflow-x:auto;
+    position:relative;
+    box-shadow:0 10px 30px rgba(62,47,36,0.06);
+  }
+  .empty-msg{
+    text-align:center;padding:60px 20px;color:var(--ink-soft);font-size:14px;
+  }
+  #svgLines{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
+  .columns{
+    display:flex;
+    gap:34px;
+    position:relative;
+    min-width:max-content;
+    padding-top:6px;
+  }
+  .col{
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    min-width:var(--card-w);
+  }
+  .col-label{
+    font-family:'Zen Maru Gothic';
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-align:center;
+    padding-bottom:8px;
+    border-bottom:2px dashed var(--line);
+    margin-bottom:4px;
+    letter-spacing:.05em;
+  }
+  .col.self .col-label{color:var(--mocha);border-bottom-color:var(--mocha);}
+  .card-slot{display:flex;flex-direction:column;justify-content:center;min-height:78px;}
+
+  .card{
+    width:var(--card-w);
+    background:var(--cream);
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:10px 12px;
+    cursor:pointer;
+    position:relative;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(62,47,36,0.14);}
+  .card.selected{
+    border-color:var(--mocha);
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(139,94,60,0.15), 0 8px 20px rgba(62,47,36,0.16);
+  }
+  .card.departed{opacity:.72;}
+  .card .top-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+  .card .gender-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .card .gender-dot.male{background:var(--male);}
+  .card .gender-dot.female{background:var(--female);}
+  .card .name{
+    font-family:'Zen Maru Gothic';
+    font-weight:700;
+    font-size:14.5px;
+    line-height:1.2;
+    color:var(--ink);
+  }
+  .card .no{font-size:9.5px;color:var(--ink-soft);margin-left:auto;}
+  .card .coat-pill{
+    display:inline-block;
+    font-size:9.5px;
+    padding:1.5px 8px;
+    border-radius:999px;
+    margin-top:3px;
+    font-weight:600;
+  }
+  .card .meta{font-size:10px;color:var(--ink-soft);margin-top:4px;line-height:1.5;}
+  .card .rip{font-size:9.5px;color:#B0846F;margin-top:2px;}
+  .card .no-data{
+    width:var(--card-w);
+    border:2px dashed var(--line);
+    border-radius:16px;
+    padding:14px 10px;
+    text-align:center;
+    font-size:11px;
+    color:#c2b39c;
+  }
+
+  .base-normal{background:var(--normal-bg);color:var(--normal);}
+  .base-sapphire{background:var(--sapphire-bg);color:var(--sapphire);}
+  .base-moon{background:var(--moon-bg);color:var(--moon);}
+  .base-mocha{background:var(--mocha-bg);color:var(--mocha);}
+
+  /* ---------- DETAIL PANEL ---------- */
+  .detail-panel{
+    margin-top:24px;
+    background:linear-gradient(135deg,#fff,var(--cream-deep));
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:22px 26px;
+    display:none;
+  }
+  .detail-panel.show{display:block;}
+  .detail-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .detail-head h2{
+    font-family:'Zen Maru Gothic';font-size:22px;margin:0;font-weight:900;
+  }
+  .detail-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px 22px;
+    font-size:13px;
+  }
+  .detail-grid div b{display:block;font-size:10.5px;color:var(--ink-soft);font-weight:600;margin-bottom:2px;letter-spacing:.03em;}
+  .badge{
+    display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;font-weight:700;
+  }
+  .badge.alive{background:#E4F0E1;color:#5C8A54;}
+  .badge.departed{background:#F1DDD4;color:#B0684B;}
+
+  footer{text-align:center;color:var(--ink-soft);font-size:11.5px;margin-top:26px;}
+
+  @media (max-width:640px){
+    .title-block h1{font-size:24px;}
+    .tree-shell{padding:18px 12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title-block">
+      <div class="eyebrow">🐹 PEDIGREE VIEWER</div>
+      <h1>どすこい家系図<span>帳</span></h1>
+    </div>
+    <div class="stats-strip" id="statsStrip"></div>
+  </header>
+
+  <div class="search-row">
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="名前で検索（例：ソイラテ）" autocomplete="off">
+      <div class="suggestions" id="suggestions" style="display:none;"></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--normal)"></i>ノーマル系</span>
+      <span><i style="background:var(--sapphire)"></i>サファイア系</span>
+      <span><i style="background:var(--moon)"></i>ムーン系</span>
+      <span><i style="background:var(--mocha)"></i>モカ系</span>
+    </div>
+  </div>
+
+  <div class="browse-row">
+    <div class="browse-label">世代からさがす</div>
+    <div class="gen-buttons" id="genButtons"></div>
+    <div class="name-buttons" id="nameButtons" style="display:none;"></div>
+  </div>
+
+  <div class="tree-shell" id="treeShell">
+    <div class="empty-msg" id="emptyMsg">上の検索ボックスから、家系図を見たいハムスターを選んでね 🐹</div>
+    <svg id="svgLines"></svg>
+    <div class="columns" id="columns" style="display:none;"></div>
+  </div>
+
+  <div class="detail-panel" id="detailPanel"></div>
+
+  <footer>93頭のデータをもとに生成</footer>
+</div>
+
+<script>
+const DATA = [{"no": 1, "name": "ショコラ", "gen": "第1世代", "gender": "男子", "birth": "2020/5/10", "coat": "ノーマル", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 52.7, "origin": "コジマ", "note": null}, {"no": 2, "name": "わたあめ", "gen": "第1世代", "gender": "女子", "birth": "2020/5/10", "coat": "パール", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 68.0, "origin": "コジマ", "note": null}, {"no": 3, "name": "まーぶる", "gen": "第2世代", "gender": "男子", "birth": "2020/9/8", "coat": "サファイアパール", "base": "サファイア", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 60.0, "origin": "はむチラ", "note": null}, {"no": 4, "name": "おはぎ", "gen": "第2世代", "gender": "男子", "birth": "2020/9/8", "coat": "ブルサファ", "base": "サファイア", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 55.3, "origin": "はむチラ", "note": null}, {"no": 5, "name": "メテオラ", "gen": "第2世代", "gender": "女子", "birth": "2020/9/8", "coat": "ブルサファ", "base": "サファイア", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 60.0, "origin": "はむチラ", "note": null}, {"no": 6, "name": "でぶた", "gen": "第2世代", "gender": "男子", "birth": "2020/9/8", "coat": "ブルサファ", "base": "サファイア", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 56.1, "origin": "はむチラ", "note": null}, {"no": 7, "name": "ティラミス", "gen": "第2世代", "gender": "女子", "birth": "2020/9/8", "coat": "ノーマル", "base": "ノーマル", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 50.0, "origin": "はむチラ", "note": null}, {"no": 8, "name": "ここあ", "gen": "第2世代", "gender": "女子", "birth": "2020/9/8", "coat": "ノーマル", "base": "ノーマル", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 42.0, "origin": "はむチラ", "note": null}, {"no": 9, "name": "ほいっぷ", "gen": "第2世代", "gender": "男子", "birth": "2020/9/8", "coat": "パール", "base": "ノーマル", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 50.0, "origin": "はむチラ", "note": null}, {"no": 10, "name": "しふぉん", "gen": "第2世代", "gender": "女子", "birth": "2020/9/8", "coat": "パール", "base": "ノーマル", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 44.0, "origin": "はむチラ", "note": null}, {"no": 11, "name": "ばにら", "gen": "第2世代", "gender": "女子", "birth": "2020/9/8", "coat": "サファイアパール", "base": "サファイア", "father": "ショコラ", "mother": "わたあめ", "peakWeight": 33.0, "origin": "はむチラ", "note": null}, {"no": 12, "name": "カフェラテ", "gen": "第2世代", "gender": "男子", "birth": "2020/9/8", "coat": "サファイアプディング", "base": "サファイア", "father": null, "mother": null, "peakWeight": 69.0, "origin": "コジマ", "note": null}, {"no": 13, "name": "ブリュレ", "gen": "第2世代", "gender": "女子", "birth": "2021/3/7", "coat": "プディング", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 68.0, "origin": "コジマ", "note": null}, {"no": 14, "name": "カフェモカ", "gen": "第3世代", "gender": "男子", "birth": "2021/5/7", "coat": "サファイアプディング", "base": "サファイア", "father": "カフェラテ", "mother": "しふぉん", "peakWeight": 92.0, "origin": "はむチラ", "note": null}, {"no": 15, "name": "すふれ", "gen": "第3世代", "gender": "男子", "birth": "2021/5/7", "coat": "クリーミーラインサファイア", "base": "ノーマル", "father": "カフェラテ", "mother": "しふぉん", "peakWeight": 72.0, "origin": "はむチラ", "note": null}, {"no": 16, "name": "ぷらちな", "gen": "第3世代", "gender": "女子", "birth": "2021/6/1", "coat": "ブルサファ", "base": "サファイア", "father": null, "mother": null, "peakWeight": 50.9, "origin": "コジマ", "note": null}, {"no": 17, "name": "えくれあ", "gen": "第3世代", "gender": "女子", "birth": "2021/7/1", "coat": "ブルサファ", "base": "サファイア", "father": null, "mother": null, "peakWeight": 49.0, "origin": "カインズ", "note": null}, {"no": 18, "name": "ブッセ", "gen": "第3世代", "gender": "男子", "birth": "2021/9/1", "coat": "クリサファ", "base": "サファイア", "father": null, "mother": null, "peakWeight": 66.0, "origin": "カインズ", "note": null}, {"no": 19, "name": "カフェオレ", "gen": "第4世代", "gender": "女子", "birth": "2021/12/22", "coat": "サファイアプディング", "base": "サファイア", "father": "すふれ", "mother": "ぷらちな", "peakWeight": 92.3, "origin": "はむチラ", "note": null}, {"no": 20, "name": "くれーぷ", "gen": "第4世代", "gender": "男子", "birth": "2021/12/22", "coat": "クリーミーラインサファイア", "base": "ノーマル", "father": "すふれ", "mother": "ぷらちな", "peakWeight": 78.0, "origin": "はむチラ", "note": null}, {"no": 21, "name": "びち太", "gen": "第4世代", "gender": "男子", "birth": "2021/12/22", "coat": "クリーミーラインサファイア", "base": "サファイア", "father": "すふれ", "mother": "ぷらちな", "peakWeight": 81.0, "origin": "はむチラ", "note": null}, {"no": 22, "name": "さぶれ", "gen": "第4世代", "gender": "女子", "birth": "2021/12/22", "coat": "クリーミーラインサファイア", "base": "サファイア", "father": "すふれ", "mother": "ぷらちな", "peakWeight": 50.0, "origin": "はむチラ", "note": null}, {"no": 23, "name": "のえる", "gen": "第4世代", "gender": "女子", "birth": "2022/1/16", "coat": "ブルサファ", "base": "サファイア", "father": "カフェモカ", "mother": "えくれあ", "peakWeight": 68.0, "origin": "はむチラ", "note": null}, {"no": 24, "name": "かすてら", "gen": "第4世代", "gender": "男子", "birth": "2022/1/16", "coat": "サファイアプディング", "base": "サファイア", "father": "カフェモカ", "mother": "えくれあ", "peakWeight": 54.9, "origin": "はむチラ", "note": null}, {"no": 25, "name": "わっふる", "gen": "第4世代", "gender": "男子", "birth": "2022/1/16", "coat": "サファイアプディング", "base": "サファイア", "father": "カフェモカ", "mother": "えくれあ", "peakWeight": 68.0, "origin": "はむチラ", "note": null}, {"no": 26, "name": "マキアート", "gen": "第4世代", "gender": "女子", "birth": "2022/1/16", "coat": "サファイアプディング", "base": "サファイア", "father": "カフェモカ", "mother": "えくれあ", "peakWeight": 71.0, "origin": "はむチラ", "note": null}, {"no": 27, "name": "かぬれ", "gen": "第4世代", "gender": "女子", "birth": "2022/1/16", "coat": "ブルサファ", "base": "サファイア", "father": "カフェモカ", "mother": "えくれあ", "peakWeight": 66.0, "origin": "はむチラ", "note": null}, {"no": 28, "name": "みるふぃーゆ", "gen": "第4世代", "gender": "女子", "birth": "2022/1/16", "coat": "サファイアプディング", "base": "サファイア", "father": "カフェモカ", "mother": "えくれあ", "peakWeight": 57.5, "origin": "はむチラ", "note": null}, {"no": 29, "name": "とるて", "gen": "第4世代", "gender": "男子", "birth": "2022/1/16", "coat": "ノーマル", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 63.0, "origin": "コジマ", "note": null}, {"no": 30, "name": "フラン", "gen": "第4世代", "gender": "男子", "birth": "2022/6/1", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 62.0, "origin": "カインズ", "note": null}, {"no": 31, "name": "ドルチェ", "gen": "第4世代", "gender": "女子", "birth": "2022/7/1", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 68.0, "origin": "カインズ", "note": null}, {"no": 32, "name": "ふろまーじゅ", "gen": "第5世代", "gender": "男子", "birth": "2022/11/20", "coat": "サファイアパール", "base": "ノーマル", "father": "びち太", "mother": "のえる", "peakWeight": 84.3, "origin": "はむチラ", "note": null}, {"no": 33, "name": "ソイラテ", "gen": "第5世代", "gender": "男子", "birth": "2022/11/20", "coat": "サファイアプディング", "base": "サファイア", "father": "びち太", "mother": "のえる", "peakWeight": 82.0, "origin": "はむチラ", "note": null}, {"no": 34, "name": "すこーん", "gen": "第5世代", "gender": "男子", "birth": "2022/11/20", "coat": "クリーミーラインサファイア", "base": "ノーマル", "father": "びち太", "mother": "のえる", "peakWeight": 92.2, "origin": "はむチラ", "note": null}, {"no": 35, "name": "しゅぜっと", "gen": "第5世代", "gender": "女子", "birth": "2022/11/20", "coat": "クリーミーラインサファイア", "base": "ノーマル", "father": "びち太", "mother": "のえる", "peakWeight": 72.0, "origin": "はむチラ", "note": null}, {"no": 36, "name": "しゅくれ", "gen": "第5世代", "gender": "女子", "birth": "2022/11/20", "coat": "サファイアパール", "base": "ノーマル", "father": "びち太", "mother": "のえる", "peakWeight": 71.0, "origin": "はむチラ", "note": null}, {"no": 37, "name": "ロッシェ", "gen": "第5世代", "gender": "男子", "birth": "2023/1/27", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 68.0, "origin": "カインズ", "note": null}, {"no": 38, "name": "フィナンシェ", "gen": "第5世代", "gender": "女子", "birth": "2023/2/7", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 116.0, "origin": "カインズ", "note": null}, {"no": 39, "name": "カタラーナ", "gen": "第5世代", "gender": "女子", "birth": "2023/3/1", "coat": "プディング", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 82.0, "origin": "カインズ", "note": null}, {"no": 40, "name": "ぱるふぇ", "gen": "第5世代", "gender": "男子", "birth": "2023/3/1", "coat": "パール", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 71.0, "origin": "カインズ", "note": null}, {"no": 41, "name": "アフォガート", "gen": "第6世代", "gender": "男子", "birth": "2023/8/1", "coat": "ブルサファ", "base": "サファイア", "father": "ソイラテ", "mother": "フィナンシェ", "peakWeight": 79.0, "origin": "はむチラ", "note": null}, {"no": 42, "name": "まどれーぬ", "gen": "第6世代", "gender": "女子", "birth": "2023/8/1", "coat": "サファイアプディング", "base": "サファイア", "father": "ソイラテ", "mother": "フィナンシェ", "peakWeight": 89.0, "origin": "はむチラ", "note": null}, {"no": 43, "name": "すもあ", "gen": "第6世代", "gender": "女子", "birth": "2023/8/1", "coat": "ブルサファ", "base": "サファイア", "father": "ソイラテ", "mother": "フィナンシェ", "peakWeight": 62.4, "origin": "はむチラ", "note": null}, {"no": 44, "name": "ふぉんでゅ", "gen": "第6世代", "gender": "男子", "birth": "2023/8/1", "coat": "ブルサファ", "base": "サファイア", "father": "ソイラテ", "mother": "フィナンシェ", "peakWeight": 84.0, "origin": "はむチラ", "note": null}, {"no": 45, "name": "コレット", "gen": "第6世代", "gender": "女子", "birth": "2023/8/1", "coat": "サファイアプディング", "base": "サファイア", "father": "ソイラテ", "mother": "フィナンシェ", "peakWeight": 94.0, "origin": "はむチラ", "note": null}, {"no": 46, "name": "ぴち子", "gen": "第6世代", "gender": "女子", "birth": "2023/8/1", "coat": "サファイアプディング", "base": "サファイア", "father": "ソイラテ", "mother": "フィナンシェ", "peakWeight": 86.0, "origin": "はむチラ", "note": null}, {"no": 47, "name": "すぷもーね", "gen": "第6世代", "gender": "女子", "birth": "2023/8/20", "coat": "イエローモカ", "base": "モカ", "father": null, "mother": null, "peakWeight": 87.0, "origin": "コジマ", "note": null}, {"no": 48, "name": "ベニエ", "gen": "第6世代", "gender": "男子", "birth": "2023/8/20", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 79.3, "origin": "コジマ", "note": null}, {"no": 49, "name": "らすく", "gen": "第6世代", "gender": "男子", "birth": "2023/10/19", "coat": "クリーミーライン", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 84.0, "origin": "カインズ", "note": null}, {"no": 50, "name": "アマレッティ", "gen": "第7世代", "gender": "女子", "birth": "2024/3/1", "coat": "モカパイド", "base": "モカ", "father": null, "mother": null, "peakWeight": 60.0, "origin": "カインズ", "note": null}, {"no": 51, "name": "ビスコッティ", "gen": "第7世代", "gender": "女子", "birth": "2024/3/1", "coat": "ムーングレー", "base": "ムーン", "father": null, "mother": null, "peakWeight": 43.3, "origin": "カインズ", "note": null}, {"no": 52, "name": "かるめら", "gen": "第7世代", "gender": "女子", "birth": "2024/5/17", "coat": "イエローモカ", "base": "モカ", "father": null, "mother": null, "peakWeight": 71.6, "origin": "ブリーダー①", "note": null}, {"no": 53, "name": "フレジェ", "gen": "第7世代", "gender": "男子", "birth": "2024/6/11", "coat": "ムーングレー", "base": "ムーン", "father": null, "mother": null, "peakWeight": 60.0, "origin": "ブリーダー①", "note": null}, {"no": 54, "name": "ホワイトモカ", "gen": "第7世代", "gender": "男子", "birth": "2024/7/7", "coat": "パール", "base": "ノーマル", "father": "ぱるふぇ", "mother": "コレット", "peakWeight": 85.0, "origin": "はむチラ", "note": null}, {"no": 55, "name": "ぷらりね", "gen": "第7世代", "gender": "女子", "birth": "2024/7/7", "coat": "ブルサファ", "base": "サファイア", "father": "ぱるふぇ", "mother": "コレット", "peakWeight": 82.0, "origin": "はむチラ", "note": null}, {"no": 56, "name": "コンパナ", "gen": "第7世代", "gender": "女子", "birth": "2024/7/7", "coat": "サファイアプディング", "base": "サファイア", "father": "ぱるふぇ", "mother": "コレット", "peakWeight": 84.4, "origin": "はむチラ", "note": null}, {"no": 57, "name": "こふれ", "gen": "第7世代", "gender": "男子", "birth": "2024/7/7", "coat": "クリーミーラインサファイア", "base": "サファイア", "father": "ぱるふぇ", "mother": "コレット", "peakWeight": 57.0, "origin": "はむチラ", "note": null}, {"no": 58, "name": "トリュフ", "gen": "第7世代", "gender": "女子", "birth": "2024/9/上旬", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 66.0, "origin": "カインズ", "note": null}, {"no": 59, "name": "ブラウニー", "gen": "第7世代", "gender": "男子", "birth": "2024/9/上旬", "coat": "モカブラウン", "base": "モカ", "father": null, "mother": null, "peakWeight": 70.0, "origin": "カインズ", "note": null}, {"no": 60, "name": "ガナッシュ", "gen": "第7世代", "gender": "男子", "birth": "2024/12", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 72.0, "origin": "ブリーダー②", "note": null}, {"no": 61, "name": "リコッタ", "gen": "第8世代", "gender": "女子", "birth": "2025/2", "coat": "イエロームーン", "base": "ムーン", "father": null, "mother": null, "peakWeight": 89.0, "origin": "カインズ", "note": null}, {"no": 62, "name": "ぱんけーき", "gen": "第8世代", "gender": "女子", "birth": "2025/2", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 66.0, "origin": "カインズ", "note": null}, {"no": 63, "name": "ファッジ", "gen": "第8世代", "gender": "男子", "birth": "2025/2", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 74.5, "origin": "カインズ", "note": null}, {"no": 64, "name": "とうふぁ", "gen": "第8世代", "gender": "女子", "birth": "2025/2", "coat": "ホワイトムーン", "base": "ムーン", "father": null, "mother": null, "peakWeight": 36.0, "origin": "カインズ", "note": null}, {"no": 65, "name": "ダークモカ", "gen": "第8世代", "gender": "男子", "birth": "2025/3/12", "coat": "ノーマル", "base": "ノーマル", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 77.0, "origin": "はむチラ", "note": null}, {"no": 66, "name": "ぱいこ", "gen": "第8世代", "gender": "女子", "birth": "2025/3/12", "coat": "サファイアパール", "base": "サファイア", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 56.0, "origin": "はむチラ", "note": null}, {"no": 67, "name": "ことん", "gen": "第8世代", "gender": "女子", "birth": "2025/3/12", "coat": "ブルサファ", "base": "サファイア", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 54.0, "origin": "はむチラ", "note": null}, {"no": 68, "name": "ねむりーの", "gen": "第8世代", "gender": "男子", "birth": "2025/3/12", "coat": "ブルサファ", "base": "サファイア", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 56.0, "origin": "はむチラ", "note": null}, {"no": 69, "name": "ぺこりーの", "gen": "第8世代", "gender": "男子", "birth": "2025/3/12", "coat": "ブルサファ", "base": "サファイア", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 77.0, "origin": "はむチラ", "note": null}, {"no": 70, "name": "ぱんな", "gen": "第8世代", "gender": "女子", "birth": "2025/3/12", "coat": "サファイアパール", "base": "サファイア", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 66.5, "origin": "はむチラ", "note": null}, {"no": 71, "name": "こった", "gen": "第8世代", "gender": "男子", "birth": "2025/3/12", "coat": "パール", "base": "ノーマル", "father": "ホワイトモカ", "mother": "トリュフ", "peakWeight": 62.3, "origin": "はむチラ", "note": null}, {"no": 72, "name": "フォレ", "gen": "第8世代", "gender": "女子", "birth": "2025/4/26", "coat": "モカパイド", "base": "モカ", "father": null, "mother": null, "peakWeight": 52.0, "origin": "ブリーダー①", "note": null}, {"no": 73, "name": "トフィー", "gen": "第8世代", "gender": "男子", "birth": "2025/4/13", "coat": "モカブラウン", "base": "モカ", "father": null, "mother": null, "peakWeight": 60.0, "origin": "ブリーダー①", "note": null}, {"no": 74, "name": "まふぃん", "gen": "第8世代", "gender": "女子", "birth": "2025/5/中旬", "coat": "サファイアプディング", "base": "サファイア", "father": null, "mother": null, "peakWeight": 70.0, "origin": "コジマ", "note": null}, {"no": 75, "name": "アーモンド", "gen": "第9世代", "gender": "男子", "birth": "2025/7/27", "coat": "モカブラウン", "base": "モカ", "father": "ブラウニー", "mother": "ぱんけーき", "peakWeight": 66.0, "origin": "はむチラ", "note": null}, {"no": 76, "name": "まかだみあ", "gen": "第9世代", "gender": "女子", "birth": "2025/7/27", "coat": "モカブラウン", "base": "モカ", "father": "ブラウニー", "mother": "ぱんけーき", "peakWeight": 68.4, "origin": "はむチラ", "note": null}, {"no": 77, "name": "ぱん子", "gen": "第9世代", "gender": "女子", "birth": "2025/7/27", "coat": "モカブラウン", "base": "モカ", "father": "ブラウニー", "mother": "ぱんけーき", "peakWeight": 74.0, "origin": "はむチラ", "note": null}, {"no": 78, "name": "カシュ―", "gen": "第9世代", "gender": "男子", "birth": "2025/7/27", "coat": "モカブラウン", "base": "モカ", "father": "ブラウニー", "mother": "ぱんけーき", "peakWeight": 85.5, "origin": "はむチラ", "note": null}, {"no": 79, "name": "くるみ", "gen": "第9世代", "gender": "女子", "birth": "2025/7/27", "coat": "モカブラウン", "base": "モカ", "father": "ブラウニー", "mother": "ぱんけーき", "peakWeight": 60.0, "origin": "はむチラ", "note": null}, {"no": 80, "name": "ブラお", "gen": "第9世代", "gender": "男子", "birth": "2025/7/27", "coat": "モカブラウン", "base": "モカ", "father": "ブラウニー", "mother": "ぱんけーき", "peakWeight": 71.0, "origin": "はむチラ", "note": null}, {"no": 81, "name": "ぴちる", "gen": "第9世代", "gender": "女子", "birth": "2025/7/29", "coat": "ホワイトモカ", "base": "モカ", "father": "こった", "mother": "リコッタ", "peakWeight": 32.0, "origin": "はむチラ", "note": null}, {"no": 82, "name": "ぽわれ", "gen": "第9世代", "gender": "男子", "birth": "2025/7/29", "coat": "ホワイトモカ", "base": "モカ", "father": "こった", "mother": "リコッタ", "peakWeight": 51.8, "origin": "はむチラ", "note": null}, {"no": 83, "name": "そわれ", "gen": "第9世代", "gender": "男子", "birth": "2025/7/29", "coat": "クリーミーラインムーン", "base": "ムーン", "father": "こった", "mother": "リコッタ", "peakWeight": 75.5, "origin": "はむチラ", "note": null}, {"no": 84, "name": "ブルトンヌ", "gen": "第9世代", "gender": "女子", "birth": "2025/8/1", "coat": "モカブラウン", "base": "モカ", "father": null, "mother": null, "peakWeight": 47.1, "origin": "ブリーダー①", "note": null}, {"no": 85, "name": "キャラメリゼ", "gen": "第10世代", "gender": "女子", "birth": "2025/11/1", "coat": "プディング", "base": "ノーマル", "father": null, "mother": null, "peakWeight": 78.0, "origin": "カインズ", "note": null}, {"no": 86, "name": "ガレット", "gen": "第10世代", "gender": "女子", "birth": "2025/12/12", "coat": "モカブラウン", "base": "モカ", "father": "そわれ", "mother": "ブルトンヌ", "peakWeight": 51.2, "origin": "はむチラ", "note": null}, {"no": 87, "name": "ふるり", "gen": "第10世代", "gender": "女子", "birth": "2025/12/12", "coat": "イエロームーン", "base": "ムーン", "father": "そわれ", "mother": "ブルトンヌ", "peakWeight": 83.5, "origin": "はむチラ", "note": null}, {"no": 88, "name": "プルミエ", "gen": "第10世代", "gender": "女子", "birth": "2025/12/12", "coat": "クリサファ", "base": "ムーン", "father": "そわれ", "mother": "ブルトンヌ", "peakWeight": 51.2, "origin": "はむチラ", "note": null}, {"no": 89, "name": "ぷるれってぃ", "gen": "第10世代", "gender": "女子", "birth": "2025/12/12", "coat": "イエローモカ", "base": "モカ", "father": "そわれ", "mother": "ブルトンヌ", "peakWeight": 63.2, "origin": "はむチラ", "note": null}, {"no": 90, "name": "ぷるり", "gen": "第10世代", "gender": "女子", "birth": "2025/12/12", "coat": "イエロームーン", "base": "ムーン", "father": "そわれ", "mother": "ブルトンヌ", "peakWeight": null, "origin": "はむチラ", "note": null}, {"no": 91, "name": "とわれ", "gen": "第10世代", "gender": "男子", "birth": "2025/12/12", "coat": "ホワイトムーン", "base": "ムーン", "father": "そわれ", "mother": "ブルトンヌ", "peakWeight": 48.0, "origin": "はむチラ", "note": null}, {"no": 92, "name": "フレーズ", "gen": "第10世代", "gender": "女子", "birth": "2026/3/10", "coat": "モカパイド", "base": "モカ", "father": null, "mother": null, "peakWeight": 34.5, "origin": "ブリーダー①", "note": null}, {"no": 93, "name": "ネージュ", "gen": "第10世代", "gender": "女子", "birth": "2026/3/上旬", "coat": "クリサファ", "base": "ムーン", "father": null, "mother": null, "peakWeight": 46.4, "origin": "カインズ", "note": "※4/3店頭入荷"}];
+
+const byName = {};
+DATA.forEach(d => byName[d.name] = d);
+
+// children lookup
+const childrenOf = {};
+DATA.forEach(d => {
+  [d.father, d.mother].forEach(p => {
+    if(p){
+      if(!childrenOf[p]) childrenOf[p] = [];
+      if(!childrenOf[p].includes(d.name)) childrenOf[p].push(d.name);
+    }
+  });
+});
+
+const baseClass = {"ノーマル":"base-normal","サファイア":"base-sapphire","ムーン":"base-moon","モカ":"base-mocha"};
+
+let selectedName = null;
+
+// ---------- stats ----------
+function renderStats(){
+  const total = DATA.length;
+  const gens = new Set(DATA.map(d=>d.gen)).size;
+  document.getElementById('statsStrip').innerHTML = `
+    <div class="stat"><b>${total}</b><span>登録頭数</span></div>
+    <div class="stat"><b>${gens}</b><span>世代数</span></div>
+  `;
+}
+renderStats();
+
+// ---------- search ----------
+const searchInput = document.getElementById('searchInput');
+const suggestions = document.getElementById('suggestions');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  if(!q){ suggestions.style.display='none'; return; }
+  const matches = DATA.filter(d => d.name.includes(q)).slice(0,10);
+  if(matches.length === 0){ suggestions.style.display='none'; return; }
+  suggestions.innerHTML = matches.map(d =>
+    `<button data-name="${d.name}"><span class="gender-dot ${d.gender==='男子'?'male':'female'}" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${d.gender==='男子'?'var(--male)':'var(--female)'}"></span>${d.name}<span class="g">${d.gen}</span></button>`
+  ).join('');
+  suggestions.style.display='block';
+});
+suggestions.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  selectHamster(btn.dataset.name);
+  suggestions.style.display='none';
+  searchInput.value = '';
+});
+document.addEventListener('click', e => {
+  if(!e.target.closest('.search-box')) suggestions.style.display='none';
+});
+
+// ---------- browse by generation ----------
+function naturalGenSort(a,b){
+  const na = parseInt((a.match(/\d+/)||[0])[0]);
+  const nb = parseInt((b.match(/\d+/)||[0])[0]);
+  return na - nb;
+}
+
+function renderGenButtons(){
+  const gens = [...new Set(DATA.map(d=>d.gen))].sort(naturalGenSort);
+  document.getElementById('genButtons').innerHTML = gens.map(g =>
+    `<button class="gen-btn" data-gen="${g}">${g}</button>`
+  ).join('');
+  document.querySelectorAll('.gen-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.gen-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderNameButtons(btn.dataset.gen);
+    });
+  });
+}
+
+function renderNameButtons(gen){
+  const members = DATA.filter(d => d.gen === gen).sort((a,b) => a.no - b.no);
+  const box = document.getElementById('nameButtons');
+  box.style.display = 'flex';
+  box.innerHTML = members.map(d =>
+    `<button class="name-btn ${d.gender==='男子'?'male':'female'} ${d.name===selectedName?'active':''}" data-name="${d.name}">${d.name}</button>`
+  ).join('');
+  box.querySelectorAll('.name-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      box.querySelectorAll('.name-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectHamster(btn.dataset.name);
+    });
+  });
+}
+
+renderGenButtons();
+
+// ---------- tree building ----------
+function getAncestorLevel(name, depth){
+  // returns array of {name or null} for a given ancestor depth (1=parents,2=grandparents,3=great-grandparents)
+  let level = [name];
+  for(let i=0;i<depth;i++){
+    let next = [];
+    level.forEach(n => {
+      const rec = n ? byName[n] : null;
+      next.push(rec ? rec.father : null);
+      next.push(rec ? rec.mother : null);
+    });
+    level = next;
+  }
+  return level;
+}
+
+function getDescendantLevels(name, maxDepth){
+  // BFS collecting unique descendant names per depth level (dedup)
+  let levels = [[name]];
+  let seen = new Set([name]);
+  for(let d=1; d<=maxDepth; d++){
+    let prev = levels[d-1];
+    let cur = [];
+    prev.forEach(n => {
+      (childrenOf[n]||[]).forEach(c => {
+        if(!seen.has(c)){ seen.add(c); cur.push(c); }
+      });
+    });
+    levels.push(cur);
+  }
+  return levels;
+}
+
+function formatDate(s){
+  if(!s) return '';
+  return s.replace(/\//g,'.');
+}
+
+function cardHTML(name, isSelf){
+  if(!name){
+    return `<div class="no-data">記録なし</div>`;
+  }
+  const d = byName[name];
+  if(!d){
+    return `<div class="no-data">${name}<br>（台帳外）</div>`;
+  }
+  const bc = baseClass[d.base] || 'base-normal';
+  return `
+    <div class="card ${isSelf?'selected':''}" data-name="${d.name}">
+      <div class="top-row">
+        <span class="gender-dot ${d.gender==='男子'?'male':'female'}"></span>
+        <span class="name">${d.name}</span>
+        <span class="no">No.${d.no}</span>
+      </div>
+      <span class="coat-pill ${bc}">${d.coat}</span>
+      <div class="meta">
+        誕生 ${formatDate(d.birth)}
+      </div>
+    </div>
+  `;
+}
+
+function selectHamster(name){
+  if(!byName[name]) return;
+  selectedName = name;
+  document.getElementById('emptyMsg').style.display = 'none';
+  document.getElementById('columns').style.display = 'flex';
+  buildTree(name);
+  renderDetail(name);
+}
+
+function buildTree(name){
+  const columnsEl = document.getElementById('columns');
+  const ancDepth = 3, desDepth = 3;
+
+  // ancestor levels (3,2,1) then self then descendant levels (1,2,3)
+  const ancestorCols = [];
+  for(let depth=ancDepth; depth>=1; depth--){
+    ancestorCols.push(getAncestorLevel(name, depth));
+  }
+  const descLevels = getDescendantLevels(name, desDepth);
+
+  const colDefs = [];
+  const ancLabels = ['ひぃひぃ祖父母','ひぃ祖父母','祖父母'];
+  ancestorCols.forEach((lv, i) => colDefs.push({label: ancLabels[i], names: lv, self:false}));
+  colDefs.push({label: '選択中', names: [name], self:true});
+  const desLabels = ['子','孫','ひ孫'];
+  for(let d=1; d<=desDepth; d++){
+    colDefs.push({label: desLabels[d-1], names: descLevels[d], self:false});
+  }
+
+  columnsEl.innerHTML = colDefs.map(cd => `
+    <div class="col ${cd.self?'self':''}">
+      <div class="col-label">${cd.label}</div>
+      ${
+        cd.names.length === 0
+        ? `<div class="card-slot"><div class="no-data">記録なし</div></div>`
+        : cd.names.map(n => `<div class="card-slot">${cardHTML(n, cd.self)}</div>`).join('')
+      }
+    </div>
+  `).join('');
+
+  columnsEl.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('click', () => selectHamster(el.dataset.name));
+  });
+
+  requestAnimationFrame(drawLines);
+}
+
+function drawLines(){
+  const svg = document.getElementById('svgLines');
+  const shell = document.getElementById('treeShell');
+  const shellRect = shell.getBoundingClientRect();
+  const columnsEl = document.getElementById('columns');
+  svg.setAttribute('width', columnsEl.scrollWidth);
+  svg.setAttribute('height', columnsEl.scrollHeight + 20);
+  svg.innerHTML = '';
+
+  const cards = Array.from(document.querySelectorAll('.card'));
+  const posByName = {};
+  cards.forEach(c => {
+    const r = c.getBoundingClientRect();
+    posByName[c.dataset.name] = {
+      cx: r.left - shellRect.left + shell.scrollLeft + r.width/2,
+      top: r.top - shellRect.top + shell.scrollTop,
+      bottom: r.top - shellRect.top + shell.scrollTop + r.height,
+      cy: r.top - shellRect.top + shell.scrollTop + r.height/2,
+      left: r.left - shellRect.left + shell.scrollLeft,
+      right: r.left - shellRect.left + shell.scrollLeft + r.width
+    };
+  });
+
+  const ns = "http://www.w3.org/2000/svg";
+  function line(x1,y1,x2,y2,color,width){
+    const el = document.createElementNS(ns,'path');
+    const mx = (x1+x2)/2;
+    el.setAttribute('d', `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`);
+    el.setAttribute('stroke', color || '#DCC9AE');
+    el.setAttribute('stroke-width', width || 1.6);
+    el.setAttribute('fill', 'none');
+    el.setAttribute('opacity', '0.85');
+    svg.appendChild(el);
+  }
+
+  DATA.forEach(d => {
+    const childPos = posByName[d.name];
+    if(!childPos) return;
+    [d.father, d.mother].forEach(p => {
+      const parentPos = p ? posByName[p] : null;
+      if(parentPos){
+        line(parentPos.right, parentPos.cy, childPos.left, childPos.cy, '#C7AD87', 1.6);
+      }
+    });
+  });
+}
+
+window.addEventListener('resize', () => { if(selectedName) drawLines(); });
+
+function renderDetail(name){
+  const d = byName[name];
+  const panel = document.getElementById('detailPanel');
+  panel.classList.add('show');
+  const bc = baseClass[d.base] || 'base-normal';
+  const kids = childrenOf[d.name] || [];
+  panel.innerHTML = `
+    <div class="detail-head">
+      <h2>${d.name}</h2>
+      <span class="coat-pill ${bc}" style="font-size:12px;padding:3px 12px;">${d.coat}</span>
+    </div>
+    <div class="detail-grid">
+      <div><b>個体No.</b>${d.no}</div>
+      <div><b>世代</b>${d.gen}</div>
+      <div><b>性別</b>${d.gender||'-'}</div>
+      <div><b>誕生日</b>${formatDate(d.birth)||'-'}</div>
+      <div><b>ベースカラー</b>${d.base||'-'}</div>
+      <div><b>父</b>${d.father||'記録なし'}</div>
+      <div><b>母</b>${d.mother||'記録なし'}</div>
+      <div><b>子（${kids.length}頭）</b>${kids.length ? kids.join('、') : 'なし'}</div>
+      <div><b>ピーク体重</b>${d.peakWeight ? d.peakWeight+'g' : '-'}</div>
+      <div><b>出身</b>${d.origin || '-'}</div>
+      ${d.note ? `<div><b>備考</b>${d.note}</div>` : ''}
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
