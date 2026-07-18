@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
 <title>ハムスター家系図</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,6 +164,7 @@
     text-align:center;padding:60px 20px;color:var(--ink-soft);font-size:14px;
   }
   #svgLines{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
+  .scroll-hint{display:none;}
   .columns{
     display:flex;
     gap:34px;
@@ -289,8 +291,56 @@
   footer{text-align:center;color:var(--ink-soft);font-size:11.5px;margin-top:26px;}
 
   @media (max-width:640px){
-    .title-block h1{font-size:24px;}
-    .tree-shell{padding:18px 12px;}
+    :root{ --card-w:132px; }
+    .wrap{padding:16px 12px 40px;}
+    header{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:12px;
+      padding-bottom:14px;
+      margin-bottom:16px;
+    }
+    .title-block h1{font-size:22px;}
+    .stats-strip{gap:10px;width:100%;}
+    .stat{padding:6px 12px;min-width:64px;flex:1;}
+    .stat b{font-size:17px;}
+
+    .search-row{gap:10px;}
+    .search-box{max-width:none;width:100%;}
+    .legend{font-size:10.5px;gap:8px 12px;}
+
+    .browse-row{margin-bottom:16px;}
+    .gen-buttons{gap:6px;}
+    .gen-btn{padding:7px 12px;font-size:11.5px;}
+    .name-buttons{padding:10px;gap:6px;}
+    .name-btn{padding:7px 11px;font-size:12px;}
+
+    .tree-shell{padding:16px 10px 20px;border-radius:16px;}
+    .scroll-hint.show{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      font-size:11px;color:var(--ink-soft);margin:-2px 0 12px;
+    }
+    .columns{gap:20px;}
+    .col{gap:14px;}
+    .col-label{font-size:10.5px;padding-bottom:6px;}
+    .card{padding:8px 9px;border-radius:12px;}
+    .card .name{font-size:13px;}
+    .card .no{font-size:8.5px;}
+    .card .coat-pill{font-size:8.5px;padding:1px 6px;}
+    .card .meta{font-size:9px;}
+    .card .rip{font-size:8.5px;}
+    .card-slot{min-height:64px;}
+    .spouse-tag{font-size:8px;padding:1px 6px;top:-8px;right:8px;}
+
+    .detail-panel{padding:16px 16px;border-radius:16px;margin-top:16px;}
+    .detail-head h2{font-size:19px;}
+    .detail-grid{grid-template-columns:1fr 1fr;gap:10px 14px;font-size:12px;}
+  }
+
+  @media (max-width:400px){
+    :root{ --card-w:112px; }
+    .detail-grid{grid-template-columns:1fr;}
+    .stats-strip{gap:8px;}
   }
 </style>
 </head>
@@ -300,7 +350,7 @@
   <header>
     <div class="title-block">
       <div class="eyebrow">🐹 PEDIGREE VIEWER</div>
-      <h1>どすこい家系図<span>帳</span></h1>
+      <h1>はむチラ家系図<span>帳</span></h1>
     </div>
     <div class="stats-strip" id="statsStrip"></div>
   </header>
@@ -327,6 +377,7 @@
   <div class="tree-shell" id="treeShell">
     <div class="empty-msg" id="emptyMsg">上の検索ボックスから、家系図を見たいハムスターを選んでね 🐹</div>
     <svg id="svgLines"></svg>
+    <div class="scroll-hint" id="scrollHint">← 横にスクロールできます →</div>
     <div class="columns" id="columns" style="display:none;"></div>
   </div>
 
@@ -509,6 +560,7 @@ function selectHamster(name){
   selectedName = name;
   document.getElementById('emptyMsg').style.display = 'none';
   document.getElementById('columns').style.display = 'flex';
+  document.getElementById('scrollHint').classList.add('show');
   buildTree(name);
   renderDetail(name);
 }
