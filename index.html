@@ -577,7 +577,7 @@ function buildTree(name){
   const descLevels = getDescendantLevels(name, desDepth);
 
   const colDefs = [];
-  const ancLabels = ['ひぃひぃ祖父母','ひぃ祖父母','祖父母'];
+  const ancLabels = ['ひぃ祖父母','祖父母','父母'];
   ancestorCols.forEach((lv, i) => colDefs.push({label: ancLabels[i], names: lv, self:false}));
   const spouses = getSpouses(name);
   colDefs.push({label: '選択中', names: [name, ...spouses], self:true, primaryName:name});
