@@ -25,6 +25,7 @@
     --gold:#D9A441;
     --male:#7C9CB8;
     --female:#D98499;
+    --acquired:#B8724A;
     --card-w:168px;
   }
   *{box-sizing:border-box;}
@@ -112,6 +113,55 @@
     font-size:9px;font-weight:700;padding:1.5px 8px;border-radius:999px;
     letter-spacing:.02em;
   }
+
+  /* ---------- ROSTER FILTERS ---------- */
+  .roster-filters{
+    display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;
+    margin-bottom:22px;
+  }
+  .filter-group{display:flex;flex-direction:column;gap:5px;}
+  .filter-group label{font-size:10.5px;color:var(--ink-soft);font-weight:600;letter-spacing:.03em;}
+  .filter-group select{
+    padding:8px 30px 8px 12px;border-radius:10px;border:2px solid var(--line);
+    background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%236B5A4C"><path d="M5.5 7.5l4.5 4.5 4.5-4.5"/></svg>') no-repeat right 10px center / 12px;
+    -webkit-appearance:none;appearance:none;
+    font-family:'Noto Sans JP';font-size:12.5px;color:var(--ink);cursor:pointer;
+    min-width:140px;
+  }
+  .filter-group select:focus{outline:none;border-color:var(--mocha);}
+  .filter-reset{
+    padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:#fff;
+    font-family:'Zen Maru Gothic';font-weight:700;font-size:11.5px;color:var(--ink-soft);cursor:pointer;
+    transition:all .12s;
+  }
+  .filter-reset:hover{border-color:var(--mocha);color:var(--mocha);}
+  .filter-result-count{font-size:11.5px;color:var(--ink-soft);margin-left:4px;}
+
+  /* ---------- DATA VIEW ---------- */
+  .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .data-card{
+    background:#fff;border:1px solid var(--line);border-radius:20px;
+    padding:20px 22px 16px;box-shadow:0 8px 20px rgba(62,47,36,0.05);
+  }
+  .data-card.wide{grid-column:1 / -1;}
+  .data-card-title{
+    font-family:'Zen Maru Gothic';font-weight:700;font-size:14.5px;color:var(--mocha);
+    margin-bottom:14px;
+  }
+  .chart-wrap{position:relative;}
+  .chart-wrap.tall{}
+  .donut-row{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center;}
+  .donut-svg{width:160px;height:160px;flex-shrink:0;}
+  .chart-legend{display:flex;flex-direction:column;gap:9px;min-width:140px;}
+  .chart-legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);}
+  .chart-legend-item i{width:12px;height:12px;border-radius:4px;flex-shrink:0;}
+  .chart-legend-item b{margin-left:auto;font-family:'Zen Maru Gothic';color:var(--mocha);}
+  .chart-legend-item .pct{color:var(--ink-soft);font-size:11px;min-width:34px;text-align:right;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+  .bar-label{width:150px;font-size:12px;color:var(--ink);flex-shrink:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar-track{flex:1;background:var(--cream-deep);border-radius:6px;height:18px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:6px;background:var(--normal);}
+  .bar-value{width:26px;font-size:11.5px;color:var(--ink-soft);text-align:right;flex-shrink:0;}
 
   /* ---------- SEARCH ---------- */
   .search-row{
@@ -248,6 +298,14 @@
     border-color:var(--gold);
     background:#fff;
   }
+  .card.acquired::before{
+    content:'';
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:4px;
+    background:var(--acquired);
+    border-radius:16px 0 0 16px;
+  }
   .spouse-tag{
     position:absolute;top:-9px;right:10px;
     background:var(--gold);color:#fff;
@@ -372,6 +430,14 @@
     .view-tabs{gap:8px;margin-bottom:16px;}
     .view-tab{padding:8px 14px;font-size:12px;}
     .roster-grid{grid-template-columns:repeat(auto-fill, minmax(112px,1fr));gap:10px;}
+    .roster-filters{gap:10px;}
+    .filter-group select{min-width:0;font-size:12px;padding:7px 26px 7px 10px;}
+    .filter-reset{padding:7px 12px;font-size:11px;}
+    .data-grid{grid-template-columns:1fr;gap:14px;}
+    .data-card{padding:16px 16px 12px;border-radius:16px;}
+    .donut-row{gap:14px;}
+    .donut-svg{width:130px;height:130px;}
+    .bar-label{width:100px;font-size:11px;}
     .roster-year-label{font-size:14px;}
 
     .search-row{gap:10px;}
@@ -431,6 +497,7 @@
   <div class="view-tabs">
     <button class="view-tab active" id="tabTree" data-view="tree">🌳 家系図</button>
     <button class="view-tab" id="tabRoster" data-view="roster">📋 全一覧</button>
+    <button class="view-tab" id="tabData" data-view="data">📊 データ</button>
   </div>
 
   <div id="treeView">
@@ -444,6 +511,7 @@
         <span><i style="background:var(--sapphire)"></i>サファイア系</span>
         <span><i style="background:var(--moon)"></i>ムーン系</span>
         <span><i style="background:var(--mocha)"></i>モカ系</span>
+        <span><i style="background:var(--acquired)"></i>お迎えの子（枠の左に色帯）</span>
       </div>
     </div>
 
@@ -464,8 +532,41 @@
   </div>
 
   <div id="rosterView" style="display:none;">
-    <div class="roster-intro">生まれ年ごとの全一覧です。家系図につながっていない子（お迎えのみの子）も含めて全員載っています。カードをクリックすると家系図タブでその子を中心に表示します。</div>
+    <div class="roster-intro">生まれ年ごとの全一覧です。家系図につながっていない子（お迎えのみの子）も含めて全員載っています。枠の左に色帯があるのはお迎えの子（繁殖に使われて血族に入った子も含む）です。カードをクリックすると家系図タブでその子を中心に表示します。</div>
+    <div class="roster-filters">
+      <div class="filter-group">
+        <label>ベース色</label>
+        <select id="filterBase">
+          <option value="all">すべて</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>毛色</label>
+        <select id="filterCoat">
+          <option value="all">すべて</option>
+        </select>
+      </div>
+      <button class="filter-reset" id="filterReset">リセット</button>
+      <span class="filter-result-count" id="filterResultCount"></span>
+    </div>
     <div id="rosterContent"></div>
+  </div>
+
+  <div id="dataView" style="display:none;">
+    <div class="data-grid">
+      <div class="data-card">
+        <div class="data-card-title">① ベース色の割合</div>
+        <div class="chart-wrap"><div id="baseChart"></div></div>
+      </div>
+      <div class="data-card">
+        <div class="data-card-title">③ 男女比</div>
+        <div class="chart-wrap"><div id="genderChart"></div></div>
+      </div>
+      <div class="data-card wide">
+        <div class="data-card-title">② 毛色ごとの数</div>
+        <div class="chart-wrap tall"><div id="coatChart"></div></div>
+      </div>
+    </div>
   </div>
 
   <footer>94匹のデータをもとに生成</footer>
@@ -574,15 +675,23 @@ renderGenButtons();
 
 // ---------- view tabs ----------
 let rosterRendered = false;
+let dataRendered = false;
 
 function switchView(view){
   document.getElementById('treeView').style.display = view === 'tree' ? '' : 'none';
   document.getElementById('rosterView').style.display = view === 'roster' ? '' : 'none';
+  document.getElementById('dataView').style.display = view === 'data' ? '' : 'none';
   document.getElementById('tabTree').classList.toggle('active', view === 'tree');
   document.getElementById('tabRoster').classList.toggle('active', view === 'roster');
+  document.getElementById('tabData').classList.toggle('active', view === 'data');
   if(view === 'roster' && !rosterRendered){
+    renderRosterFilters();
     renderRoster();
     rosterRendered = true;
+  }
+  if(view === 'data' && !dataRendered){
+    renderCharts();
+    dataRendered = true;
   }
   if(view === 'tree' && selectedName){
     requestAnimationFrame(drawLines);
@@ -590,6 +699,7 @@ function switchView(view){
 }
 document.getElementById('tabTree').addEventListener('click', () => switchView('tree'));
 document.getElementById('tabRoster').addEventListener('click', () => switchView('roster'));
+document.getElementById('tabData').addEventListener('click', () => switchView('data'));
 
 // ---------- roster (all hamsters by birth year) ----------
 function extractYear(birth){
@@ -604,9 +714,42 @@ function isIsolated(name){
   return !d.father && !d.mother && !(childrenOf[name] || []).length;
 }
 
+let rosterFilters = { base: 'all', coat: 'all' };
+
+function renderRosterFilters(){
+  const bases = [...new Set(DATA.map(d => d.base))].filter(Boolean).sort();
+  const coats = [...new Set(DATA.map(d => d.coat))].filter(Boolean).sort();
+
+  const baseSel = document.getElementById('filterBase');
+  const coatSel = document.getElementById('filterCoat');
+  baseSel.innerHTML = `<option value="all">すべて</option>` + bases.map(b => `<option value="${b}">${b}</option>`).join('');
+  coatSel.innerHTML = `<option value="all">すべて</option>` + coats.map(c => `<option value="${c}">${c}</option>`).join('');
+
+  baseSel.addEventListener('change', e => { rosterFilters.base = e.target.value; renderRoster(); });
+  coatSel.addEventListener('change', e => { rosterFilters.coat = e.target.value; renderRoster(); });
+  document.getElementById('filterReset').addEventListener('click', () => {
+    rosterFilters = { base: 'all', coat: 'all' };
+    baseSel.value = 'all';
+    coatSel.value = 'all';
+    renderRoster();
+  });
+}
+
 function renderRoster(){
+  const filtered = DATA.filter(d =>
+    (rosterFilters.base === 'all' || d.base === rosterFilters.base) &&
+    (rosterFilters.coat === 'all' || d.coat === rosterFilters.coat)
+  );
+
+  document.getElementById('filterResultCount').textContent = `${filtered.length}匹表示中`;
+
+  if(filtered.length === 0){
+    document.getElementById('rosterContent').innerHTML = `<div class="empty-msg">条件に合う子がいません</div>`;
+    return;
+  }
+
   const groups = {};
-  DATA.forEach(d => {
+  filtered.forEach(d => {
     const y = extractYear(d.birth);
     if(!groups[y]) groups[y] = [];
     groups[y].push(d);
@@ -637,6 +780,77 @@ function renderRoster(){
       document.getElementById('treeShell').scrollIntoView({behavior:'smooth', block:'start'});
     });
   });
+}
+
+// ---------- data tab (charts) ----------
+function renderDonutChart(containerId, entries, colorFn, defaultPalette){
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  const cx = 60, cy = 60, r = 45, sw = 18;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  const arcs = entries.map(([label, value], i) => {
+    const frac = value / total;
+    const dash = frac * circumference;
+    const color = colorFn(label) || defaultPalette[i % defaultPalette.length];
+    const arc = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"
+      stroke-dasharray="${dash.toFixed(2)} ${(circumference - dash).toFixed(2)}"
+      stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += dash;
+    return arc;
+  }).join('');
+
+  const legend = entries.map(([label, value], i) => {
+    const color = colorFn(label) || defaultPalette[i % defaultPalette.length];
+    const pct = Math.round(value / total * 100);
+    return `
+      <div class="chart-legend-item">
+        <i style="background:${color}"></i>
+        <span>${label}</span>
+        <span class="pct">${pct}%</span>
+        <b>${value}匹</b>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById(containerId).innerHTML = `
+    <div class="donut-row">
+      <svg class="donut-svg" viewBox="0 0 120 120">${arcs}</svg>
+      <div class="chart-legend">${legend}</div>
+    </div>
+  `;
+}
+
+function renderBarChart(containerId, entries, color){
+  const max = Math.max(...entries.map(e => e[1]));
+  const html = entries.map(([label, value]) => `
+    <div class="bar-row">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(value / max * 100).toFixed(1)}%;background:${color}"></div></div>
+      <div class="bar-value">${value}</div>
+    </div>
+  `).join('');
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function renderCharts(){
+  // ① base color donut
+  const baseColorMap = {'ノーマル':'#C98A4B','サファイア':'#6E8FAE','ムーン':'#9683B0','モカ':'#8B5E3C'};
+  const baseCounts = {};
+  DATA.forEach(d => { if(d.base) baseCounts[d.base] = (baseCounts[d.base] || 0) + 1; });
+  const baseEntries = Object.entries(baseCounts).sort((a,b) => b[1] - a[1]);
+  renderDonutChart('baseChart', baseEntries, label => baseColorMap[label], ['#C98A4B','#6E8FAE','#9683B0','#8B5E3C']);
+
+  // ③ gender donut
+  const genderCounts = {};
+  DATA.forEach(d => { if(d.gender) genderCounts[d.gender] = (genderCounts[d.gender] || 0) + 1; });
+  const genderEntries = Object.entries(genderCounts).sort((a,b) => b[1] - a[1]);
+  renderDonutChart('genderChart', genderEntries, label => label === '女子' ? '#D98499' : '#7C9CB8', ['#D98499','#7C9CB8']);
+
+  // ② coat color bar
+  const coatCounts = {};
+  DATA.forEach(d => { if(d.coat) coatCounts[d.coat] = (coatCounts[d.coat] || 0) + 1; });
+  const coatEntries = Object.entries(coatCounts).sort((a,b) => b[1] - a[1]);
+  renderBarChart('coatChart', coatEntries, '#C98A4B');
 }
 
 // ---------- tree building ----------
@@ -686,9 +900,10 @@ function cardHTML(name, type){
     return `<div class="no-data">${name}<br>（台帳外）</div>`;
   }
   const bc = baseClass[d.base] || 'base-normal';
+  const acquired = !d.father && !d.mother;
   const cls = type === 'self' ? 'selected' : (type === 'spouse' ? 'spouse' : '');
   return `
-    <div class="card ${cls}" data-name="${d.name}">
+    <div class="card ${cls} ${acquired?'acquired':''}" data-name="${d.name}">
       ${type==='spouse' ? '<span class="spouse-tag">配偶者</span>' : ''}
       ${type==='roster-isolated' ? '<span class="isolated-tag">お迎えのみ</span>' : ''}
       <div class="card-head">
